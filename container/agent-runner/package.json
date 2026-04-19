@@ -1,0 +1,23 @@
+{
+  "name": "NinjaClaw-agent-runner",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Container-side agent runner for NinjaClaw",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@github/copilot-sdk": "^0.2.2",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "better-sqlite3": "11.10.0",
+    "cron-parser": "^5.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.10.7",
+    "typescript": "^5.7.3"
+  }
+}
