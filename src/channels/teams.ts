@@ -9,7 +9,7 @@
 import express from 'express';
 import {
   BotFrameworkAdapter,
-  BotFrameworkAdapterSettings,
+  type BotFrameworkAdapterSettings,
   TurnContext,
   ActivityHandler,
   ConversationReference,
@@ -51,11 +51,11 @@ class TeamsChannel implements Channel {
       return;
     }
 
-    const settings = new BotFrameworkAdapterSettings(
-      TEAMS_BOT_APP_ID,
-      TEAMS_BOT_APP_PASSWORD,
-      TEAMS_BOT_TENANT_ID,
-    );
+    const settings: BotFrameworkAdapterSettings = {
+      appId: TEAMS_BOT_APP_ID,
+      appPassword: TEAMS_BOT_APP_PASSWORD,
+      channelAuthTenant: TEAMS_BOT_TENANT_ID || undefined,
+    };
     this.adapter = new BotFrameworkAdapter(settings);
 
     const app = express();

@@ -33,6 +33,24 @@ interface ContainerInput {
   isScheduledTask?: boolean;
   assistantName?: string;
   script?: string;
+  /**
+   * Optional MCP servers to inject into the Copilot SDK session for this turn.
+   * Populated by the host when the originating channel is Agent 365 —
+   * contains short-lived bearer tokens scoped to the calling user, never
+   * persisted to disk.
+   */
+  mcpServers?: Record<
+    string,
+    {
+      type?: 'http' | 'sse' | 'local' | 'stdio';
+      url?: string;
+      headers?: Record<string, string>;
+      command?: string;
+      args?: string[];
+      env?: Record<string, string>;
+      tools: string[];
+    }
+  >;
 }
 
 interface ContainerOutput {
@@ -419,22 +437,33 @@ async function runQuery(
         backgroundCompactionThreshold: 0.8,
         bufferExhaustionThreshold: 0.95,
       },
+      // Agent 365 (Phase 2): per-turn MCP servers passed in by the host.
+      // The SDK reads `mcpServers` directly from session config; bearer
+      // tokens in headers are scoped to this turn only.
+      mcpServers: containerInput.mcpServers as
+        | Parameters<typeof client.createSession>[0]['mcpServers']
+        | undefined,
     };
 
     let session: CopilotSession;
     if (sessionId && !resumeAt) {
       try {
+        // Pass mcpServers on resume too — per-turn Agent 365 tools are
+        // injected fresh by the host each turn and would otherwise be lost.
         session = await client.resumeSession(sessionId, {
           onPermissionRequest: approveAll,
+          mcpServers: containerInput.mcpServers as
+            | Parameters<typeof client.resumeSession>[1]['mcpServers']
+            | undefined,
         });
-        log(`Resumed session: ${sessionId}`);
+        log(`Resumed session: ${sessionId} (mcpServers=${containerInput.mcpServers ? Object.keys(containerInput.mcpServers).join(',') : 'none'})`);
       } catch {
         session = await client.createSession(sessionConfig);
-        log(`Failed to resume, created new session: ${session.sessionId}`);
+        log(`Failed to resume, created new session: ${session.sessionId} (mcpServers=${containerInput.mcpServers ? Object.keys(containerInput.mcpServers).join(',') : 'none'})`);
       }
     } else {
       session = await client.createSession(sessionConfig);
-      log(`Created session: ${session.sessionId}`);
+      log(`Created session: ${session.sessionId} (mcpServers=${containerInput.mcpServers ? Object.keys(containerInput.mcpServers).join(',') : 'none'})`);
     }
 
     newSessionId = session.sessionId;

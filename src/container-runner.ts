@@ -35,9 +35,33 @@ const onecli = new OneCLI({ url: ONECLI_URL, apiKey: ONECLI_API_KEY });
 // Read secrets from .env (not loaded into process.env by design)
 const envSecrets = readEnvFile(['GITHUB_TOKEN', 'COPILOT_MODEL']);
 
-// Sentinel markers for robust output parsing (must match agent-runner)
-const OUTPUT_START_MARKER = '---NinjaClaw_OUTPUT_START---';
-const OUTPUT_END_MARKER = '---NinjaClaw_OUTPUT_END---';
+// Sentinel markers for robust output parsing (must match agent-runner).
+// Accept both legacy NANOCLAW markers (used by upstream nanoclaw container
+// images) and the rebranded NinjaClaw markers, so the host stays compatible
+// with either image build.
+const OUTPUT_START_MARKERS = [
+  '---NinjaClaw_OUTPUT_START---',
+  '---NANOCLAW_OUTPUT_START---',
+];
+const OUTPUT_END_MARKERS = [
+  '---NinjaClaw_OUTPUT_END---',
+  '---NANOCLAW_OUTPUT_END---',
+];
+
+function findFirstMarker(
+  buf: string,
+  markers: string[],
+  fromIdx = 0,
+): { idx: number; marker: string } {
+  let best = { idx: -1, marker: '' };
+  for (const m of markers) {
+    const i = buf.indexOf(m, fromIdx);
+    if (i !== -1 && (best.idx === -1 || i < best.idx)) {
+      best = { idx: i, marker: m };
+    }
+  }
+  return best;
+}
 
 export interface ContainerInput {
   prompt: string;
@@ -48,6 +72,22 @@ export interface ContainerInput {
   isScheduledTask?: boolean;
   assistantName?: string;
   script?: string;
+  /**
+   * Optional MCP servers to inject into the Copilot SDK session for this turn.
+   * Used by the Agent 365 channel to plumb governed Microsoft 365 tools
+   * (Mail / Calendar / SharePoint / Teams) on behalf of the calling user.
+   * Bearer tokens in `headers.Authorization` are short-lived (per-turn) and
+   * the entire object is intentionally NOT persisted on disk — it travels
+   * stdin from host to container and dies with the turn.
+   */
+  mcpServers?: Record<string, McpServerConfig>;
+}
+
+export interface McpServerConfig {
+  type: 'http' | 'sse';
+  url: string;
+  headers?: Record<string, string>;
+  tools: string[];
 }
 
 export interface ContainerOutput {
@@ -392,15 +432,21 @@ export async function runContainerAgent(
       // Stream-parse for output markers
       if (onOutput) {
         parseBuffer += chunk;
-        let startIdx: number;
-        while ((startIdx = parseBuffer.indexOf(OUTPUT_START_MARKER)) !== -1) {
-          const endIdx = parseBuffer.indexOf(OUTPUT_END_MARKER, startIdx);
-          if (endIdx === -1) break; // Incomplete pair, wait for more data
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          const start = findFirstMarker(parseBuffer, OUTPUT_START_MARKERS);
+          if (start.idx === -1) break;
+          const end = findFirstMarker(
+            parseBuffer,
+            OUTPUT_END_MARKERS,
+            start.idx,
+          );
+          if (end.idx === -1) break; // Incomplete pair, wait for more data
 
           const jsonStr = parseBuffer
-            .slice(startIdx + OUTPUT_START_MARKER.length, endIdx)
+            .slice(start.idx + start.marker.length, end.idx)
             .trim();
-          parseBuffer = parseBuffer.slice(endIdx + OUTPUT_END_MARKER.length);
+          parseBuffer = parseBuffer.slice(end.idx + end.marker.length);
 
           try {
             const parsed: ContainerOutput = JSON.parse(jsonStr);
@@ -636,13 +682,13 @@ export async function runContainerAgent(
       // Legacy mode: parse the last output marker pair from accumulated stdout
       try {
         // Extract JSON between sentinel markers for robust parsing
-        const startIdx = stdout.indexOf(OUTPUT_START_MARKER);
-        const endIdx = stdout.indexOf(OUTPUT_END_MARKER);
+        const start = findFirstMarker(stdout, OUTPUT_START_MARKERS);
+        const end = findFirstMarker(stdout, OUTPUT_END_MARKERS, start.idx === -1 ? 0 : start.idx);
 
         let jsonLine: string;
-        if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+        if (start.idx !== -1 && end.idx !== -1 && end.idx > start.idx) {
           jsonLine = stdout
-            .slice(startIdx + OUTPUT_START_MARKER.length, endIdx)
+            .slice(start.idx + start.marker.length, end.idx)
             .trim();
         } else {
           // Fallback: last non-empty line (backwards compatibility)

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.19",
+  "version": "1.0.1",
+  "id": "794b51d8-6adc-4f9c-b3ae-37c0aa5edae2",
+  "developer": {
+    "name": "OfirGavish",
+    "websiteUrl": "https://github.com/OfirGavish/NinjaClaw-Nano",
+    "privacyUrl": "https://github.com/OfirGavish/NinjaClaw-Nano/blob/main/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/OfirGavish/NinjaClaw-Nano/blob/main/LICENSE"
+  },
+  "name": {
+    "short": "NinjaClaw-Nano",
+    "full": "NinjaClaw-Nano AI Assistant (Agent 365)"
+  },
+  "description": {
+    "short": "Per-user containerized AI assistant, governed via Agent 365.",
+    "full": "NinjaClaw-Nano (governed) is the Agent 365 build of NinjaClaw-Nano. Each user runs their own isolated VM. Conversations dispatch into per-conversation Docker containers so secrets, tools, and skills are sandboxed. Identity, governance, and observability flow through Microsoft Agent 365."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#7C3AED",
+  "bots": [
+    {
+      "botId": "c0f8187f-5269-4a10-b84b-b7e1015b289f",
+      "scopes": [
+        "personal",
+        "team",
+        "groupChat"
+      ],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": [
+            "personal"
+          ],
+          "commands": [
+            {
+              "title": "help",
+              "description": "Show available commands and capabilities"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "ninjaclawnano-bot.mscloudninja.com"
+  ]
+}

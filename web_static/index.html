@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NinjaClaw</title>
+    <link rel="icon" type="image/png" href="/static/NinjaClaw.png">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* Header link buttons (Settings, Agent 365). Match .header-actions button look. */
+        .header-actions .header-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            margin-left: 8px;
+            font-size: 0.9em;
+            color: inherit;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .header-actions .header-link:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <div class="header-left">
+                <img src="/static/NinjaClaw.png" alt="NinjaClaw" class="logo">
+                <div class="header-info">
+                    <h1>NinjaClaw</h1>
+                    <span id="status-indicator" class="status offline">Disconnected</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="btn-clear" title="Clear history">/clear</button>
+                <button id="btn-audit" title="Audit log">/audit</button>
+                <a id="lnk-settings" class="header-link" href="/settings" title="Settings">⚙ Settings</a>
+                <a id="lnk-agent365" class="header-link" href="/agent365" title="Agent 365 admin">Agent 365</a>
+            </div>
+        </header>
+
+        <main id="chat-messages">
+            <div class="welcome-message">
+                <img src="/static/NinjaClaw.png" alt="NinjaClaw" class="welcome-logo">
+                <h2>Welcome to NinjaClaw</h2>
+                <p>Security-focused AI agent. Type a message or use commands like <code>/approve</code>, <code>/deny</code>, <code>/memory</code>.</p>
+            </div>
+        </main>
+
+        <footer>
+            <form id="chat-form">
+                <textarea id="chat-input" placeholder="Send a message..." autocomplete="off" autofocus rows="1"></textarea>
+                <button type="submit" id="btn-send">Send</button>
+            </form>
+        </footer>
+    </div>
+
+    <script>
+        // Preserve ?token= when navigating to Settings / Agent 365.
+        (function () {
+            var token = new URLSearchParams(window.location.search).get('token');
+            if (!token) return;
+            ['lnk-settings', 'lnk-agent365'].forEach(function (id) {
+                var a = document.getElementById(id);
+                if (a) a.href = a.getAttribute('href') + '?token=' + encodeURIComponent(token);
+            });
+        })();
+    </script>
+    <script src="/static/chat.js"></script>
+</body>
+</html>

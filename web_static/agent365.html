@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NinjaClaw — Agent 365 Admin</title>
+  <link rel="icon" type="image/png" href="/static/NinjaClaw.png">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/settings.css">
+  <link rel="stylesheet" href="/static/agent365.css">
+</head>
+<body>
+  <div id="app" class="settings-app">
+    <header>
+      <div class="header-left">
+        <a href="/" class="back-link" title="Back to chat">
+          <img src="/static/NinjaClaw.png" alt="NinjaClaw" class="logo">
+        </a>
+        <div class="header-info">
+          <h1>Agent 365 Admin</h1>
+          <span id="status" class="status">Loading…</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="/settings" class="btn-link">Settings</a>
+        <a href="/" class="btn-link">← Chat</a>
+      </div>
+    </header>
+
+    <main id="agent365-main">
+      <div id="auth-prompt" class="auth-prompt hidden">
+        <p>Web UI access token required.</p>
+        <input type="password" id="auth-token" placeholder="NINJACLAW_WEB_TOKEN">
+        <button id="btn-auth">Continue</button>
+      </div>
+
+      <div id="content" class="hidden">
+
+        <!-- Step 1: Microsoft sign-in -->
+        <section class="card">
+          <h2>1. Sign in with Microsoft</h2>
+          <p class="description">
+            Required role: <b>Cloud Application Administrator</b> or
+            <b>Application Administrator</b> in your Frontier-enabled tenant.
+            Your refresh token is cached locally at
+            <code>~/.config/NinjaClaw/agent365-admin.json</code> and never written to <code>.env</code>.
+          </p>
+
+          <div id="signed-out" class="hidden">
+            <button id="btn-signin" class="primary">Sign in with Microsoft</button>
+          </div>
+
+          <div id="signed-in" class="hidden">
+            <p class="success-line">
+              Signed in as <b id="account-username"></b>
+              <span class="muted" id="account-tenant"></span>
+            </p>
+            <button id="btn-signout">Sign out</button>
+          </div>
+
+          <div id="device-flow" class="device-flow hidden">
+            <p>Open this URL on any device:</p>
+            <p><a id="device-uri" target="_blank" rel="noopener"></a></p>
+            <p>Enter this code:</p>
+            <p class="device-code"><code id="device-code"></code>
+              <button id="btn-copy-code" class="copy-btn" title="Copy">⧉</button>
+            </p>
+            <p class="muted" id="device-status">Waiting for sign-in…</p>
+          </div>
+        </section>
+
+        <!-- Step 2: Blueprint -->
+        <section class="card" id="blueprint-card">
+          <h2>2. Publish blueprint</h2>
+          <p class="description">
+            Submits <code>agent365/blueprint.json</code> to the Agent 365
+            admin plane and merges in the deployment fields from your
+            <code>.env</code>. After success, the agent appears in the
+            Microsoft 365 Admin Center under <b>Agent 365 → Available agents</b>.
+          </p>
+
+          <div class="env-summary">
+            <h3>Deployment context</h3>
+            <ul id="deployment-context"></ul>
+          </div>
+
+          <div class="actions-row">
+            <button id="btn-dry-run">Dry run</button>
+            <button id="btn-publish" class="primary">Publish</button>
+          </div>
+
+          <pre id="publish-result" class="result-pre hidden"></pre>
+        </section>
+
+        <!-- Step 3: Instances -->
+        <section class="card" id="instances-card">
+          <h2>3. Agent instances</h2>
+          <p class="description">
+            Each instance is its own Entra app + Bot Framework resource that
+            shares the published blueprint. The <b>active</b> instance is
+            mirrored into <code>.env</code> so the running channels use it
+            after restart. Secrets stay in
+            <code>~/.config/NinjaClaw/agent365-instances.json</code>
+            (mode 0600); only the active instance's secret is mirrored.
+          </p>
+
+          <div id="instances-list" class="instances-list">
+            <p class="muted">Loading…</p>
+          </div>
+
+          <details class="create-form">
+            <summary>+ Create new instance</summary>
+            <div class="form-grid">
+              <label>Display name
+                <input type="text" id="ci-display" placeholder="NinjaClaw — sales agent">
+              </label>
+              <label>Hosting mode
+                <select id="ci-hosting">
+                  <option value="bot-framework">Bot Framework (recommended)</option>
+                  <option value="tailscale">Tailscale (direct)</option>
+                </select>
+              </label>
+              <label>Messaging endpoint
+                <input type="url" id="ci-endpoint" placeholder="https://your-host/api/messages">
+              </label>
+              <label>Tenant id (optional)
+                <input type="text" id="ci-tenant" placeholder="leave blank for admin's tenant">
+              </label>
+            </div>
+
+            <fieldset id="bf-fields">
+              <legend>Bot Framework provisioning (only for bot-framework hosting)</legend>
+              <div class="form-grid">
+                <label>Subscription id
+                  <input type="text" id="ci-subscription" placeholder="GUID">
+                </label>
+                <label>Resource group
+                  <input type="text" id="ci-rg" placeholder="agents-rg">
+                </label>
+                <label>Location
+                  <input type="text" id="ci-location" value="global">
+                </label>
+                <label>Bot name (optional)
+                  <input type="text" id="ci-botname" placeholder="auto-generated from clientId">
+                </label>
+              </div>
+            </fieldset>
+
+            <label class="inline-check">
+              <input type="checkbox" id="ci-active" checked>
+              Activate this instance after creation (mirror to .env)
+            </label>
+
+            <div class="actions-row">
+              <button id="btn-create-instance" class="primary">Create instance</button>
+            </div>
+
+            <pre id="create-result" class="result-pre hidden"></pre>
+          </details>
+        </section>
+
+        <!-- Step 4: Connect Microsoft 365 user -->
+        <section class="card" id="user-card">
+          <h2>4. Connect Microsoft 365 user</h2>
+          <p class="description">
+            Sign in once with the user account whose mail / calendar / files
+            the agent should access. Uses the <b>active instance's</b> Entra
+            app with delegated Graph permissions
+            (<code>Mail.Read</code>, <code>Mail.Send</code>,
+            <code>Calendars.ReadWrite</code>, <code>Files.Read.All</code>,
+            <code>Chat.Read</code>). Refresh token is cached at
+            <code>~/.config/NinjaClaw/agent365-user-&lt;instanceId&gt;.json</code>
+            (mode 0600) and never written to <code>.env</code>.
+          </p>
+
+          <div id="user-no-instance" class="muted hidden">
+            No active instance. Create or activate one in step 3 first.
+          </div>
+
+          <div id="user-signed-out" class="hidden">
+            <button id="btn-user-signin" class="primary">Sign in with Microsoft (user)</button>
+            <button id="btn-enable-delegated" title="Add Graph delegated permissions to the active instance app (only needed for instances created before this feature shipped)">Enable delegated perms on app</button>
+          </div>
+
+          <div id="user-signed-in" class="hidden">
+            <p class="success-line">
+              Connected as <b id="user-username"></b>
+              <span class="muted" id="user-displayname"></span>
+            </p>
+            <div class="actions-row">
+              <button id="btn-user-mail">Show recent mail</button>
+              <button id="btn-user-events">Show upcoming events</button>
+              <button id="btn-user-signout">Disconnect user</button>
+            </div>
+            <pre id="user-result" class="result-pre hidden"></pre>
+          </div>
+
+          <div id="user-device-flow" class="device-flow hidden">
+            <p>Open this URL on any device:</p>
+            <p><a id="user-device-uri" target="_blank" rel="noopener"></a></p>
+            <p>Enter this code:</p>
+            <p class="device-code"><code id="user-device-code"></code>
+              <button id="btn-user-copy-code" class="copy-btn" title="Copy">⧉</button>
+            </p>
+            <p class="muted" id="user-device-status">Waiting for sign-in…</p>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/agent365.js"></script>
+</body>
+</html>

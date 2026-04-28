@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NinjaClaw — Settings</title>
+  <link rel="icon" type="image/png" href="/static/NinjaClaw.png">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/settings.css">
+</head>
+<body>
+  <div id="app" class="settings-app">
+    <header>
+      <div class="header-left">
+        <a href="/" class="back-link" title="Back to chat">
+          <img src="/static/NinjaClaw.png" alt="NinjaClaw" class="logo">
+        </a>
+        <div class="header-info">
+          <h1>Settings</h1>
+          <span id="status" class="status">Loading…</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="/agent365" class="btn-link">Agent 365 Admin</a>
+        <a href="/" class="btn-link">← Chat</a>
+      </div>
+    </header>
+
+    <main id="settings-main">
+      <div id="auth-prompt" class="auth-prompt hidden">
+        <p>Web UI access token required.</p>
+        <input type="password" id="auth-token" placeholder="NINJACLAW_WEB_TOKEN">
+        <button id="btn-auth">Continue</button>
+      </div>
+
+      <div id="settings-content" class="hidden">
+        <p class="env-path">
+          Editing <code id="env-path"></code>
+        </p>
+        <div id="categories"></div>
+
+        <div class="actions-bar">
+          <button id="btn-reload" type="button">Discard changes</button>
+          <button id="btn-save" type="button" class="primary">Save changes</button>
+        </div>
+        <div id="save-result" class="save-result hidden"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/settings.js"></script>
+</body>
+</html>

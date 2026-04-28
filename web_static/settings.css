@@ -1,0 +1,245 @@
+/* NinjaClaw settings UI styles */
+
+.settings-app main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+}
+
+.back-link {
+  display: inline-block;
+}
+.back-link img {
+  width: 40px;
+  height: 40px;
+}
+.btn-link {
+  text-decoration: none;
+  color: inherit;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+.btn-link:hover {
+  opacity: 0.8;
+}
+
+.env-path {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-bottom: 1.5rem;
+}
+.env-path code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.category {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+}
+.category > h2 {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  font-size: 1.05rem;
+  background: rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.category > h2 .badge {
+  font-size: 0.7rem;
+  font-weight: normal;
+  opacity: 0.6;
+}
+
+.field-group {
+  padding: 0.75rem 1rem;
+  border-top: 1px dashed rgba(0, 0, 0, 0.06);
+}
+.field-group:first-of-type {
+  border-top: none;
+}
+.field-group h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  margin: 0 0 0.5rem;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+.field:first-of-type {
+  border-top: none;
+}
+.field label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+.field label .key {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.75rem;
+  font-weight: normal;
+  opacity: 0.5;
+}
+.field .description {
+  font-size: 0.85rem;
+  opacity: 0.75;
+  margin: 0;
+}
+.field input {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  font: inherit;
+  background: white;
+  color: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+.field input:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: -1px;
+}
+.field input::placeholder {
+  opacity: 0.45;
+}
+.field .secret-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+.field .secret-row input {
+  flex: 1;
+}
+.field .secret-row .clear-btn {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+.field .secret-row .clear-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+.field .current-state {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+.field .current-state.set {
+  color: #16a34a;
+}
+.field .current-state.unset {
+  opacity: 0.5;
+}
+
+.actions-bar {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  position: sticky;
+  bottom: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(6px);
+}
+.actions-bar button {
+  padding: 0.6rem 1.2rem;
+  font: inherit;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: white;
+  cursor: pointer;
+}
+.actions-bar button.primary {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+.actions-bar button.primary:hover {
+  background: #2563eb;
+}
+.actions-bar button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.save-result {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+.save-result.success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+.save-result.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.auth-prompt {
+  max-width: 420px;
+  margin: 4rem auto;
+  padding: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  text-align: center;
+}
+.auth-prompt input {
+  width: 100%;
+  padding: 0.6rem;
+  margin: 1rem 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  font: inherit;
+  box-sizing: border-box;
+}
+.auth-prompt button {
+  padding: 0.55rem 1.5rem;
+  font: inherit;
+  border-radius: 6px;
+  border: 1px solid #3b82f6;
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+}
+
+.hidden { display: none !important; }
+
+#status.online { color: #16a34a; }
+#status.error  { color: #dc2626; }
+
+@media (prefers-color-scheme: dark) {
+  .field input { background: #1f2937; color: #f3f4f6; border-color: #374151; }
+  .actions-bar { background: rgba(17, 24, 39, 0.95); border-color: #374151; }
+  .actions-bar button { background: #1f2937; color: #f3f4f6; border-color: #374151; }
+  .category { border-color: #374151; }
+  .category > h2 { background: rgba(255,255,255,0.04); border-color: #374151; }
+  .save-result.success { background: #064e3b; color: #d1fae5; border-color: #047857; }
+  .save-result.error   { background: #7f1d1d; color: #fee2e2; border-color: #b91c1c; }
+}

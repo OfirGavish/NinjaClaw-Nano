@@ -34,6 +34,11 @@ A personal AI agent that runs in Docker containers for security, communicates vi
 - **NinjaBrain** — Structured knowledge engine with compiled truth + timeline model. Stores everything the agent learns about people, projects, companies, and concepts. Auto-injects relevant context before every response.
 - **GitHub Copilot SDK** — Single-model agent loop. No split-brain architecture. The same model that plans also executes tools, reads files, writes code, and verifies its output.
 - **Multi-Channel** — Telegram bot, Web UI (WebSocket + REST), and Microsoft Teams.
+- **Microsoft 365 Integration** — First-class **Agent 365** support: the agent runs as a real Entra Agent Identity with its own Agent ID, registered in the Microsoft Agent Registry, and surfaces in Microsoft Purview DSPM for AI for governance and audit. End users sign in with their own Microsoft account (delegated OAuth via device code) and the agent can:
+  - Read and send mail (Outlook)
+  - Read and write Teams chats and channel messages
+  - Browse OneDrive and SharePoint, read Excel workbooks and Word documents
+  - Generate files (e.g. PowerPoint decks) and upload them straight to the user's OneDrive
 - **Agent Lightning APO** — Automatic Prompt Optimization runs daily to improve the system prompt based on conversation quality metrics.
 - **Security-First** — Read-only project mount in containers, credential injection without exposing secrets, blocked dangerous commands.
 
@@ -102,6 +107,23 @@ On every conversation, the agent:
 | `brain_link` | Cross-reference two pages |
 | `brain_list` | List pages by entity type |
 | `brain_stats` | Knowledge base statistics |
+
+## Microsoft 365 / Agent 365
+
+NinjaClaw-Nano integrates with the Microsoft Agent ecosystem end-to-end:
+
+- **Entra Agent Identity** — Each deployment provisions a real Agent Identity (Agent ID) with its own service principal, distinct from any human user.
+- **Microsoft Agent Registry** — The agent is published as a Blueprint + Instance in the Agent Registry so admins can discover, govern, and revoke it like any other workload identity.
+- **Agent 365 channel** — Conversations flow through the Bot Framework / M365 Copilot Extensions surface, so the agent shows up natively in Microsoft Teams as a first-class agent.
+- **Purview DSPM for AI** — Activity, prompts, and tool invocations are visible in Microsoft Purview Data Security Posture Management for AI for compliance and audit.
+- **Delegated user MCP tools** — Once a user signs in (device-code OAuth, per-instance token cache), the agent gets a scoped set of MCP tools exposed at `/mcp/m365`:
+  - `m365_mail_*` — list, read, send mail
+  - `m365_calendar_*` — read and create events
+  - `m365_files_list`, `m365_file_read_text`, `m365_excel_read`, `m365_docx_read` — browse OneDrive / SharePoint and read Office documents
+  - `m365_file_upload` — upload generated files (PowerPoint, Word, Excel, …) back into the user's OneDrive
+  - `m365_teams_chats_list`, `m365_teams_chat_messages`, `m365_teams_send_chat_message`, channel read/post tools
+
+See [docs/AGENT-365-INTEGRATION.md](docs/AGENT-365-INTEGRATION.md) and [docs/agent365/SETUP.md](docs/agent365/SETUP.md) for provisioning, RBAC, and the device-code sign-in flow.
 
 ## Agent Lightning
 

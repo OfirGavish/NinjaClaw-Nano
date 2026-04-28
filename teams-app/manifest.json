@@ -1,0 +1,56 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.19",
+  "version": "1.0.0",
+  "id": "ac46e381-27bf-49d6-851b-261a35757a54",
+  "developer": {
+    "name": "OfirGavish",
+    "websiteUrl": "https://github.com/OfirGavish/NinjaClaw-Nano",
+    "privacyUrl": "https://github.com/OfirGavish/NinjaClaw-Nano/blob/main/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/OfirGavish/NinjaClaw-Nano/blob/main/LICENSE"
+  },
+  "name": {
+    "short": "NinjaClaw-Nano",
+    "full": "NinjaClaw-Nano AI Assistant"
+  },
+  "description": {
+    "short": "Per-user containerized AI assistant with multi-channel reach.",
+    "full": "NinjaClaw-Nano is an open-source self-hosted AI agent. Each user runs their own isolated VM. Conversations are dispatched into per-conversation Docker containers so secrets, tools, and skills are sandboxed. Powered by the GitHub Copilot SDK for inference; integrates with Microsoft 365 via Agent 365 for identity, governance, and observability."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#7C3AED",
+  "bots": [
+    {
+      "botId": "ac46e381-27bf-49d6-851b-261a35757a54",
+      "scopes": [
+        "personal",
+        "team",
+        "groupChat"
+      ],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": ["personal"],
+          "commands": [
+            {
+              "title": "help",
+              "description": "Show available commands and capabilities"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "ninjaclaw-bot.mscloudninja.com",
+    "ninjaclaw-nano.mscloudninja.com"
+  ]
+}

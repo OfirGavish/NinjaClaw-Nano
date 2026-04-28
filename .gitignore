@@ -22,6 +22,16 @@ groups/global/*
 *.keys.json
 .env
 
+# Agent 365 local config & generated state (contains tenant IDs and secrets)
+a365.config.json
+a365.generated.config.json
+agent365/blueprint.json
+agent365/logs/
+
+# Build / deploy artifacts
+*.zip
+deploy.tar.gz
+
 # Temp files
 .tmp-*
 

@@ -21,6 +21,15 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@azure/msal-node": "^5.1.4",
+    "@microsoft/agents-a365-notifications": "^0.2.0-preview.3.g9f76baaead",
+    "@microsoft/agents-a365-observability": "^0.2.0-preview.3.g9f76baaead",
+    "@microsoft/agents-a365-observability-hosting": "^0.2.0-preview.3.g9f76baaead",
+    "@microsoft/agents-a365-runtime": "^0.2.0-preview.3.g9f76baaead",
+    "@microsoft/agents-a365-tooling": "^0.2.0-preview.3.g9f76baaead",
+    "@microsoft/agents-activity": "^1.4.2",
+    "@microsoft/agents-hosting": "^1.4.2",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@onecli-sh/sdk": "^0.2.0",
     "better-sqlite3": "11.10.0",
     "botbuilder": "^4.23.3",

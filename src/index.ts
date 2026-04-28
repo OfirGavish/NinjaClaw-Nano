@@ -10,6 +10,7 @@ import {
   GROUPS_DIR,
   IDLE_TIMEOUT,
   MAX_MESSAGES_PER_PROMPT,
+  ONECLI_API_KEY,
   ONECLI_URL,
   POLL_INTERVAL,
   TIMEZONE,
@@ -25,6 +26,11 @@ import {
   writeGroupsSnapshot,
   writeTasksSnapshot,
 } from './container-runner.js';
+import { consumeMcpTurnContext } from './agent365/mcp-context.js';
+import { getActiveInstanceId } from './agent365/admin/instances.js';
+import { getCachedUserAccount } from './agent365/user/oauth.js';
+import { M365_MCP_TOOL_NAMES } from './agent365/user/mcp-server.js';
+import { readEnvFile } from './env.js';
 import {
   cleanupOrphans,
   ensureContainerRuntimeRunning,
@@ -80,7 +86,7 @@ let messageLoopRunning = false;
 const channels: Channel[] = [];
 const queue = new GroupQueue();
 
-const onecli = new OneCLI({ url: ONECLI_URL });
+const onecli = new OneCLI({ url: ONECLI_URL, apiKey: ONECLI_API_KEY });
 
 function ensureOneCLIAgent(jid: string, group: RegisteredGroup): void {
   if (group.isMain) return;
@@ -392,6 +398,52 @@ async function runAgent(
     : undefined;
 
   try {
+    // Phase 2: pull any per-turn Agent 365 MCP context the channel cached
+    // when the activity arrived. consumeMcpTurnContext() removes the entry,
+    // so each turn gets its own short-lived MCP credentials and we never
+    // reuse a stale bearer token across containers.
+    const mcpCtx = chatJid.startsWith('agent365:')
+      ? consumeMcpTurnContext(chatJid)
+      : undefined;
+    const baseMcp =
+      mcpCtx && Object.keys(mcpCtx.mcpServers).length > 0
+        ? { ...mcpCtx.mcpServers }
+        : ({} as Record<string, any>);
+
+    // Phase 3: if the active Agent 365 instance has a signed-in user (via
+    // the per-instance delegated OAuth in agent365/user/oauth.ts), expose
+    // the host's M365 MCP server to the container so the agent can natively
+    // call mail/calendar tools on every channel (Web/Telegram/etc.), not
+    // just inside Agent 365.
+    try {
+      const activeId = getActiveInstanceId();
+      logger.info({ activeId, chatJid }, 'M365 MCP injection: checking active instance');
+      if (activeId) {
+        const acct = await getCachedUserAccount(activeId);
+        logger.info({ activeId, hasAccount: !!acct, username: acct?.username }, 'M365 MCP injection: user account check');
+        if (acct) {
+          const env = readEnvFile(['NINJACLAW_WEB_TOKEN', 'NINJACLAW_WEB_PORT']);
+          const token = process.env.NINJACLAW_WEB_TOKEN || env.NINJACLAW_WEB_TOKEN || '';
+          const port = process.env.NINJACLAW_WEB_PORT || env.NINJACLAW_WEB_PORT || '8484';
+          logger.info({ hasToken: !!token, port }, 'M365 MCP injection: token/port');
+          if (token) {
+            baseMcp['m365'] = {
+              type: 'http',
+              url: `http://host.docker.internal:${port}/mcp/m365?instanceId=${encodeURIComponent(activeId)}`,
+              headers: { Authorization: `Bearer ${token}` },
+              tools: [...M365_MCP_TOOL_NAMES],
+            };
+            logger.info({ toolCount: M365_MCP_TOOL_NAMES.length, tools: M365_MCP_TOOL_NAMES }, 'M365 MCP injection: injected m365 server');
+          }
+        }
+      }
+    } catch (err) {
+      logger.warn({ err }, 'Failed to inject M365 MCP server into agent session');
+    }
+
+    const mcpServers = Object.keys(baseMcp).length > 0 ? baseMcp : undefined;
+    logger.info({ hasMcpServers: !!mcpServers, serverKeys: mcpServers ? Object.keys(mcpServers) : [] }, 'M365 MCP injection: final mcpServers for container');
+
     const output = await runContainerAgent(
       group,
       {
@@ -401,6 +453,7 @@ async function runAgent(
         chatJid,
         isMain,
         assistantName: ASSISTANT_NAME,
+        mcpServers,
       },
       (proc, containerName) =>
         queue.registerProcess(chatJid, proc, containerName, group.folder),
@@ -671,6 +724,24 @@ async function main(): Promise<void> {
           }
           return;
         }
+      }
+      // Agent 365 1:1 chats are auto-registered as groups so messages get
+      // dispatched to the AI. Without this the message is stored but never
+      // processed because processGroupMessages only runs for known groups.
+      if (chatJid.startsWith('agent365:') && !registeredGroups[chatJid]) {
+        // Folder must match ^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$ — use a short
+        // deterministic hash of the full JID to stay within the 64-char limit.
+        const hash = Array.from(chatJid).reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 0);
+        const folder = `a365-${Math.abs(hash).toString(36).slice(0, 12)}`;
+        registerGroup(chatJid, {
+          name: msg.sender_name || 'Agent 365',
+          folder,
+          trigger: DEFAULT_TRIGGER,
+          added_at: new Date().toISOString(),
+          requiresTrigger: false,
+          isMain: false,
+        });
+        logger.info({ chatJid }, 'Auto-registered Agent 365 conversation as group');
       }
       storeMessage(msg);
     },

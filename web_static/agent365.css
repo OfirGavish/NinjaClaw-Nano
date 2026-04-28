@@ -1,0 +1,255 @@
+/* Agent 365 admin console — additive styles on top of settings.css */
+
+.card {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.card h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  margin: 1rem 0 0.4rem;
+}
+
+.card .description {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  line-height: 1.5;
+}
+
+.actions-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.actions-row button {
+  padding: 0.55rem 1.2rem;
+  font: inherit;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: white;
+  cursor: pointer;
+}
+
+.actions-row button.primary,
+button.primary {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+button.primary:hover {
+  background: #2563eb;
+}
+
+.success-line {
+  background: #ecfdf5;
+  color: #065f46;
+  padding: 0.6rem 0.85rem;
+  border-radius: 6px;
+  border: 1px solid #a7f3d0;
+}
+.muted {
+  opacity: 0.6;
+  margin-left: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.device-flow {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px dashed #3b82f6;
+  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.device-code {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.device-code code {
+  font-size: 1.4rem;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  background: rgba(0, 0, 0, 0.08);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  letter-spacing: 0.15em;
+}
+
+.copy-btn {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.9rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.env-summary ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.85rem;
+}
+.env-summary li {
+  padding: 0.25rem 0;
+  display: flex;
+  gap: 0.75rem;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.06);
+}
+.env-summary li:last-child { border-bottom: none; }
+.env-summary li .key  { font-weight: 600; min-width: 200px; }
+.env-summary li .val  { opacity: 0.85; word-break: break-all; }
+.env-summary li .val.unset { opacity: 0.4; font-style: italic; }
+
+.result-pre {
+  margin-top: 1rem;
+  padding: 0.85rem;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  max-height: 400px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.result-pre.error {
+  border-color: #b91c1c;
+  background: rgba(254, 226, 226, 0.4);
+}
+.result-pre.success {
+  border-color: #047857;
+  background: rgba(209, 250, 229, 0.5);
+}
+
+/* Instances section */
+.instances-list { margin-top: 0.75rem; }
+.instance-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+.instance-row.active {
+  border-color: #047857;
+  background: rgba(209, 250, 229, 0.3);
+}
+.instance-row .meta {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.78rem;
+  opacity: 0.7;
+  margin-top: 0.2rem;
+}
+.instance-row .meta span { margin-right: 0.85rem; }
+.instance-row .name { font-weight: 600; }
+.instance-row .badge {
+  display: inline-block;
+  padding: 0.05rem 0.45rem;
+  font-size: 0.7rem;
+  border-radius: 999px;
+  background: #047857;
+  color: white;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+.instance-row .actions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+.instance-row .actions button {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.instance-row .actions button.danger {
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+.create-form {
+  margin-top: 1.25rem;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+  padding-top: 1rem;
+}
+.create-form summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.4rem 0;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+  gap: 0.25rem;
+}
+.form-grid input,
+.form-grid select {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  font: inherit;
+}
+fieldset#bf-fields {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  padding: 0.5rem 1rem 1rem;
+  margin: 0.75rem 0;
+}
+fieldset#bf-fields legend {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  padding: 0 0.4rem;
+}
+.inline-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  margin: 0.5rem 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .instance-row { background: rgba(255,255,255,0.04); border-color: #374151; }
+  .instance-row.active { background: rgba(6, 78, 59, 0.4); }
+  .instance-row .actions button { background: #1f2937; color: #f3f4f6; border-color: #374151; }
+  .form-grid input, .form-grid select { background: #1f2937; color: #f3f4f6; border-color: #374151; }
+  fieldset#bf-fields { border-color: #374151; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .card { border-color: #374151; }
+  .actions-row button { background: #1f2937; color: #f3f4f6; border-color: #374151; }
+  .success-line { background: #064e3b; color: #d1fae5; border-color: #047857; }
+  .device-flow { background: rgba(59,130,246,0.1); }
+  .device-code code { background: rgba(255,255,255,0.08); }
+  .result-pre { background: rgba(255,255,255,0.04); border-color: #374151; }
+}

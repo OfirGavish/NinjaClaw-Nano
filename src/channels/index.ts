@@ -5,6 +5,7 @@
 import './telegram.js';
 import './teams.js';
 import './web.js';
+import './agent365/index.js';
 
 // discord
 
